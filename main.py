@@ -1,7 +1,8 @@
 import os
 import io
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import Response
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi.responses import Response, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 import google.generativeai as genai
 from fpdf import FPDF
@@ -22,6 +23,8 @@ genai.configure(api_key=GEMINI_KEY)
 model = genai.GenerativeModel('models/gemini-2.5-flash') 
 
 app = FastAPI(title="AI Papan Tulis ke PDF")
+
+templates = Jinja2Templates(directory="templates")
 
 app.add_middleware(
     CORSMiddleware,
@@ -84,9 +87,9 @@ def create_pdf(text: str) -> bytearray:
     except Exception as e:
         raise Exception(f"PDF Error: {str(e)}")
 
-@app.get("/")
-def home():
-    return {"message": "Server AI Notes Ready! Buka /docs untuk mencoba."}
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/upload-note/")
 async def upload_and_convert(files: List[UploadFile] = File(...)):
