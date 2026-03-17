@@ -272,7 +272,7 @@
 
             const formData = new FormData();
             for (let i = 0; i < files.length; i++) {
-                formData.append('files', files);
+                formData.append('files', files[i]);
             }
 
             // State Loading
@@ -283,7 +283,7 @@
 
             try {
                 // Sesuaikan URL jika backend Anda hosting di tempat berbeda
-                const response = await fetch('http://ilikepdf.up.railway.app/upload-note/', {
+                const response = await fetch('/upload-note/', {
                     method: 'POST',
                     body: formData
                 });
