@@ -10,34 +10,28 @@
         body {
             font-family: 'Public Sans', sans-serif;
             background-color: #f0f0f0;
-            overflow-x: hidden; /* Mencegah scroll horizontal pada mobile */
+            overflow-x: hidden;
         }
 
-        /* --- Efek Stacking (Kertas Bertumpuk) --- */
         .stack-section {
             position: sticky;
             top: 0;
-            min-height: 100vh; /* Gunakan min-height agar konten panjang tidak terpotong di mobile */
+            min-height: 100vh; 
             display: flex;
             align-items: center;
             border-bottom: 4px solid #000;
-            padding-top: 80px; /* Jarak agar tidak tertutup navbar sticky */
+            padding-top: 80px;
             padding-bottom: 40px;
         }
 
-        /* Utilitas Neo-Brutalism */
         .neo-border { border: 4px solid #000; }
         .neo-shadow { box-shadow: 8px 8px 0px 0px #000; }
         .neo-shadow-sm { box-shadow: 4px 4px 0px 0px #000; }
-        
-        /* Warna Tombol */
+
         .btn-pink { background-color: #FF00F5; }
         .btn-green { background-color: #00FF66; }
         .btn-yellow { background-color: #FFDE00; }
 
-        /* --- ANIMASI NEO-BRUTALISM (CSS ONLY) --- */
-        
-        /* Animasi 1: Kotak Berputar & Berkedip (Home) */
         @keyframes neo-spin-blink {
             0% { transform: rotate(0deg); background-color: #FFDE00; }
             25% { background-color: #FF00F5; }
@@ -46,10 +40,9 @@
             100% { transform: rotate(90deg); background-color: #FFDE00; }
         }
         .animate-neo-box {
-            animation: neo-spin-blink 3s steps(1) infinite; /* steps(1) untuk kesan patah-patah/kasar */
+            animation: neo-spin-blink 3s steps(1) infinite; 
         }
 
-        /* Animasi 2: Baris Data Bergerak (About) */
         @keyframes data-flow {
             0% { transform: translateY(0); }
             100% { transform: translateY(-100%); }
@@ -58,13 +51,12 @@
             animation: data-flow 5s linear infinite;
         }
 
-        /* Perbaikan responsif khusus untuk elemen ekstrim */
         @media (max-width: 640px) {
             .stack-section {
-                min-height: auto; /* Matikan full-height di mobile sangat kecil jika konten penuh */
+                min-height: auto; 
                 padding-top: 100px;
             }
-            .neo-shadow { box-shadow: 4px 4px 0px 0px #000; } /* Bayangan lebih kecil di mobile */
+            .neo-shadow { box-shadow: 4px 4px 0px 0px #000; } 
         }
     </style>
 </head>
@@ -225,7 +217,6 @@
     </footer>
 
     <script>
-        // --- LOGIKA UI MOBILE ---
         const menuBtn = document.getElementById('menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
 
@@ -233,7 +224,6 @@
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Tutup menu saat link diklik (di mobile)
         const mobileLinks = mobileMenu.querySelectorAll('a');
         mobileLinks.forEach(link => {
             link.addEventListener('click', () => {
@@ -241,8 +231,6 @@
             });
         });
 
-
-        // --- LOGIKA BACKEND INTEGRATION (Sama seperti sebelumnya dengan perbaikan UI) ---
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
         const uploadBtn = document.getElementById('uploadBtn');
@@ -275,14 +263,12 @@
                 formData.append('files', files[i]);
             }
 
-            // State Loading
             uploadBtn.disabled = true;
             uploadBtn.textContent = "SEDANG DIPROSES...";
             statusDiv.classList.remove('hidden');
             fileList.classList.add('opacity-50');
 
             try {
-                // Sesuaikan URL jika backend Anda hosting di tempat berbeda
                 const response = await fetch('/upload-note/', {
                     method: 'POST',
                     body: formData
@@ -293,18 +279,15 @@
                     throw new Error(errorData.detail || 'Gagal memproses gambar');
                 }
 
-                // Menangani output bytearray/blob PDF
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
-                
-                // Membuat link download tersembunyi
+
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = 'Catatan_Lengkap_iLikePDF.pdf';
                 document.body.appendChild(a);
                 a.click();
-                
-                // Cleanup
+
                 window.URL.revokeObjectURL(url);
                 a.remove();
                 
@@ -313,7 +296,6 @@
                 console.error(error);
                 alert("Terjadi kesalahan fatal: " + error.message);
             } finally {
-                // Restore State
                 uploadBtn.disabled = false;
                 uploadBtn.textContent = "Proses dan Download PDF";
                 statusDiv.classList.add('hidden');

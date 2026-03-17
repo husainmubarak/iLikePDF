@@ -10,16 +10,13 @@ from fpdf.enums import XPos, YPos
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 
-# 1. Load API Key dari .env
 load_dotenv()
 GEMINI_KEY = os.getenv("GEMINI_API_KEY")
 
 if not GEMINI_KEY:
     print("ERROR: GEMINI_API_KEY tidak ditemukan di file .env!")
 
-# 2. Konfigurasi Gemini
 genai.configure(api_key=GEMINI_KEY)
-# Menggunakan Gemini 2.5 Flash (Mendukung Gambar & Teks)
 model = genai.GenerativeModel('models/gemini-2.5-flash') 
 
 app = FastAPI(title="AI Papan Tulis ke PDF")
@@ -35,9 +32,7 @@ app.add_middleware(
 )
 
 def process_image_with_gemini(image_bytes: bytes, mime_type: str) -> str:
-    """Fungsi Multimodal: Membaca gambar dan merapikan teks sekaligus"""
     try:
-        # Menyiapkan payload gambar untuk Gemini
         image_part = {
             "mime_type": mime_type,
             "data": image_bytes
@@ -58,31 +53,21 @@ def process_image_with_gemini(image_bytes: bytes, mime_type: str) -> str:
         raise Exception(f"Gemini AI Error: {str(e)}")
 
 def create_pdf(text: str) -> bytearray:
-    """Mengonversi hasil AI menjadi file PDF"""
     try:
         pdf = FPDF()
         pdf.add_page()
         
-        # Menggunakan font Helvetica (Standar)
         pdf.set_font("helvetica", size=12)
-        
-        # Judul Dokumen - Pakai cara baru sesuai peringatan error
         pdf.set_font("helvetica", style="B", size=16)
         pdf.cell(0, 10, "Catatan Materi Terstruktur", 
                  new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
         pdf.ln(10)
-        
-        # Isi Materi
         pdf.set_font("helvetica", size=11)
-        
-        # Bersihkan karakter agar tidak crash (FPDF standar hanya dukung Latin-1)
-        # Kita lakukan encode/decode di string-nya, BUKAN di hasil output pdf
+
         clean_text = text.encode('latin-1', 'replace').decode('latin-1')
-        
-        # Tulis teks
+
         pdf.multi_cell(0, 7, clean_text)
-        
-        # Di fpdf2 terbaru, output() langsung menghasilkan bytearray
+
         return pdf.output()
     except Exception as e:
         raise Exception(f"PDF Error: {str(e)}")
@@ -98,7 +83,7 @@ async def upload_and_convert(files: List[UploadFile] = File(...)):
     try:
         for index, file in enumerate(files):
             if not file.content_type.startswith('image/'):
-                continue # Lewati jika bukan gambar
+                continue 
             
             image_content = await file.read()
             
